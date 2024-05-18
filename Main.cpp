@@ -32,8 +32,8 @@ int main()
 	GLfloat vertices[] = {
 		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // low left corner
 		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // lower right corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f // top 
-		- 0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // innner left
+		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // top 
+		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // innner left
 		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, //  inner right
 		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // inner down 
 	};
