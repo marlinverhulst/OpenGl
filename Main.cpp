@@ -15,13 +15,14 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLfloat vertices[] = {
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // low left corner
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // lower right corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // top 
-		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // innner left
-		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, //  inner right
-		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // inner down 
+	GLfloat vertices[] = 
+	{ 
+		-0.5f, -0.5f	* float(sqrt(3)) / 3,		0.0f,		0.8f, 0.3f, 0.02f, // low left corner
+		 0.5f, -0.5f	* float(sqrt(3)) / 3,		0.0f,		0.8f, 0.3f, 0.02f, // lower right corner
+		 0.0f, 0.5f		* float(sqrt(3)) * 2 / 3,	0.0f,		1.0f, 0.6f, 0.32f, // top 
+		-0.5f / 2, 0.5f * float(sqrt(3)) / 6,		0.0f,		0.9f, 0.45f, 0.17f, // innner left
+		 0.5f / 2, 0.5f * float(sqrt(3)) / 6,		0.0f,		0.9f, 0.45f, 0.17f, //  inner right
+		 0.0f, -0.5f	* float(sqrt(3)) / 3,		0.0f,		0.8f, 0.3f, 0.02f, // inner down 
 	};
 
 	GLuint indicies[] = {
@@ -60,7 +61,8 @@ int main()
 	EBO EBO1(indicies, sizeof(indicies));
 
 	// Links VAO to VBO
-	VAO1.LinkVBO(VBO1,0);
+	VAO1.LinkAttribute(VBO1,0, 3, GL_FLOAT, 6 * sizeof(float), (void*) 0);
+	VAO1.LinkAttribute(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	//Unbind the thingies
 	VAO1.UnBind();
