@@ -35,15 +35,14 @@ Texture::Texture(const char* image, GLenum texType, GLenum texSlot, GLenum forma
 
 }
 
-void Texture::texUnit(Shader shader, const char* uniform, GLuint unit)
+void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
-	// get uniform location 
-	GLint texUniformID = glGetUniformLocation(shader.ID, uniform);
-	// activate shader before setting the value of the uniform
+	// Gets the location of the uniform
+	GLuint texUni = glGetUniformLocation(shader.ID, uniform);
+	// Shader needs to be activated before changing the value of a uniform
 	shader.Activate();
-	// set the value 
-	glUniform1i(texUniformID, unit);
-
+	// Sets the value of the uniform
+	glUniform1i(texUni, unit);
 }
 
 void Texture::Bind()

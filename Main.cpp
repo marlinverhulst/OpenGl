@@ -6,6 +6,7 @@
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
+#include"Texture.h"
 
 
 
@@ -68,42 +69,17 @@ int main()
 	VBO1.UnBind();
 	EBO1.UnBind();
 
-
+	// get the uniform location for scale
 	GLint uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 	// Texture 
 
-	int widthImage, heightImage, numColorCh;
-	stbi_set_flip_vertically_on_load(1);
-	unsigned char* bytes = stbi_load("marioQuestionmark.png", &widthImage, &heightImage, &numColorCh, 0);
 
-	GLuint texture;
-	GLint textureFilter = GL_NEAREST;
-	GLint textureWrap = GL_REPEAT;
+	Texture block("marioQuestionmark.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	block.texUnit(shaderProgram, "tex0", 0);
 
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilter);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrap);
 
-	// if you want to use GL_TEXTURE_BORDER_COLOR YOU ALSO NEED THESE 
-	// float flatColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	// glTexParamerfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColor);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImage, heightImage, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	
-	// free the image
-	stbi_image_free(bytes);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	GLint texUniformID = glGetUniformLocation(shaderProgram.ID, "tex0");
-	shaderProgram.Activate();
-	glUniform1i(texUniformID, 0);
 
 
 
@@ -119,7 +95,7 @@ int main()
 		shaderProgram.Activate();
 		// access uniforms only after activating the shader programm
 		glUniform1f(uniformID, 0.5f);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		block.Bind();
 		VAO1.Bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// dont forget to swap buffers to actually display the image
@@ -139,7 +115,7 @@ int main()
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
-	glDeleteTextures(1, &texture);
+	block.Delete();
 	shaderProgram.Delete();
 	glfwDestroyWindow(window);
 	glfwTerminate();
