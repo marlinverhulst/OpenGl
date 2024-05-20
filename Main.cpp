@@ -70,6 +70,9 @@ int main()
 	EBO1.UnBind();
 
 
+	GLint uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+
 
 	
 	
@@ -79,6 +82,8 @@ int main()
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		shaderProgram.Activate();
+		// access uniforms only after activating the shader programm
+		glUniform1f(uniformID, 0.5f);
 		VAO1.Bind();
 		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 		// dont forget to swap buffers to actually display the image
