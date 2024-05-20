@@ -2,6 +2,7 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include"shaderClass.h"
+#include<stb/stb_image.h>
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
@@ -17,18 +18,15 @@ int main()
 
 	GLfloat vertices[] = 
 	{ 
-		-0.5f, -0.5f	* float(sqrt(3)) / 3,		0.0f,		0.8f, 0.3f, 0.02f, // low left corner
-		 0.5f, -0.5f	* float(sqrt(3)) / 3,		0.0f,		0.8f, 0.3f, 0.02f, // lower right corner
-		 0.0f, 0.5f		* float(sqrt(3)) * 2 / 3,	0.0f,		1.0f, 0.6f, 0.32f, // top 
-		-0.5f / 2, 0.5f * float(sqrt(3)) / 6,		0.0f,		0.9f, 0.45f, 0.17f, // innner left
-		 0.5f / 2, 0.5f * float(sqrt(3)) / 6,		0.0f,		0.9f, 0.45f, 0.17f, //  inner right
-		 0.0f, -0.5f	* float(sqrt(3)) / 3,		0.0f,		0.8f, 0.3f, 0.02f, // inner down 
+			-0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner
+			-0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner
+			0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
+			0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
 	};
 
 	GLuint indicies[] = {
-		0, 3, 5, // lower left
-		3, 2, 4, // lower right
-		5, 4, 1 // top
+		0,2,1,
+		0,3,2
 	};
  
 	// create window Whoot!! //
@@ -61,8 +59,9 @@ int main()
 	EBO EBO1(indicies, sizeof(indicies));
 
 	// Links VAO to VBO
-	VAO1.LinkAttribute(VBO1,0, 3, GL_FLOAT, 6 * sizeof(float), (void*) 0);
-	VAO1.LinkAttribute(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	VAO1.LinkAttribute(VBO1,0, 3, GL_FLOAT, 8 * sizeof(float), (void*) 0);
+	VAO1.LinkAttribute(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	VAO1.LinkAttribute(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
 	//Unbind the thingies
 	VAO1.UnBind();
@@ -71,6 +70,42 @@ int main()
 
 
 	GLint uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+	// Texture 
+
+	int widthImage, heightImage, numColorCh;
+	stbi_set_flip_vertically_on_load(1);
+	unsigned char* bytes = stbi_load("marioQuestionmark.png", &widthImage, &heightImage, &numColorCh, 0);
+
+	GLuint texture;
+	GLint textureFilter = GL_NEAREST;
+	GLint textureWrap = GL_REPEAT;
+
+	glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilter);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrap);
+
+	// if you want to use GL_TEXTURE_BORDER_COLOR YOU ALSO NEED THESE 
+	// float flatColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	// glTexParamerfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColor);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImage, heightImage, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	
+	// free the image
+	stbi_image_free(bytes);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	GLint texUniformID = glGetUniformLocation(shaderProgram.ID, "tex0");
+	shaderProgram.Activate();
+	glUniform1i(texUniformID, 0);
+
+
 
 
 
@@ -84,8 +119,9 @@ int main()
 		shaderProgram.Activate();
 		// access uniforms only after activating the shader programm
 		glUniform1f(uniformID, 0.5f);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		VAO1.Bind();
-		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// dont forget to swap buffers to actually display the image
 		glfwSwapBuffers(window);
 
@@ -103,6 +139,7 @@ int main()
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
+	glDeleteTextures(1, &texture);
 	shaderProgram.Delete();
 	glfwDestroyWindow(window);
 	glfwTerminate();
